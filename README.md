@@ -76,30 +76,6 @@ The shelter also provides upstream connectivity toward the Internet and the cafe
 - DHCP Snooping / Dynamic ARP Inspection concepts
 - SSH-based administrative access
 
-## Repository Structure
-
-```text
-Network-Security-Architecture/
-│
-├── README.md
-│
-├── documentation/
-│   ├── network-design.pdf
-│   ├── topology.png
-│   ├── ip-addressing.txt
-│   ├── security-design.txt
-│   └── testing-results.txt
-│
-├── configurations/
-│   ├── R1.txt
-│   ├── R2.txt
-│   ├── SW1.txt
-│   └── SW2.txt
-│
-└── packet-tracer/
-    └── network-project.pkt
-```
-
 ## Project Objectives
 
 The project was designed to provide:
@@ -143,9 +119,3 @@ The `documentation/` directory contains the supporting project documentation, in
 This is an educational CCNA-level Packet Tracer project. It is intended to demonstrate practical networking and introductory network-security concepts rather than represent a production enterprise deployment.
 
 Some features and behaviors are represented within the limitations of Cisco Packet Tracer and the scope of the project.
-
-## Project Status
-
-**Completed — Educational / Portfolio Project**
-
-Built and documented as part of a practical CCNA networking and introductory infrastructure-security learning journey.
