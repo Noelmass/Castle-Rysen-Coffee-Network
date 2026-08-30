@@ -1,0 +1,107 @@
+================================================================================
+ CASTLE RYSEN COFFEE -- NETWORK CONFIGURATION DOCUMENTATION
+ Device : ISP-RT  (Packet Tracer object: Router3)
+ Model  : Cisco 1941 (IOS 15.1)
+ Site   : Simulated Internet / ISP edge router
+ Source : Running-configuration (show running-config), extracted directly
+          from CastleRysenProject.pkt. Not the startup-config.
+================================================================================
+
+**Set baseline IOS housekeeping: disabled millisecond timestamps on log/debug messages and enabled secret-key encryption for all clear-text passwords in the config
+version 15.1
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+service password-encryption**
+
+**Set the device hostname to ISP-RT
+hostname ISP-RT**
+
+**Set the encrypted enable secret (privileged EXEC password)
+enable secret 5 $1$mERr$aEvfWgVMth8X8NrSsL0Il.**
+
+**Explicitly disabled Cisco Express Forwarding for both IPv4 and IPv6
+no ip cef
+no ipv6 cef**
+
+**Hardware license/UDI declaration for this router (informational, auto-generated)
+license udi pid CISCO1941/K9 sn FTX1524GOD6-**
+
+**Spanning-tree mode set to PVST (present by default on IOS)
+spanning-tree mode pvst**
+
+**Configured Loopback1 with IP address 1.1.1.1/32 -- simulates a well-known public DNS resolver address inside the topology
+interface Loopback1
+ ip address 1.1.1.1 255.255.255.255**
+
+**Configured Loopback2 with IP address 8.8.8.8/32 -- simulates a second well-known public DNS resolver address inside the topology
+interface Loopback2
+ ip address 8.8.8.8 255.255.255.255**
+
+**Configured GigabitEthernet0/0 with IP address 216.0.5.2/24 -- the shared "internet" segment facing RTINT-SW, and from there both site routers
+interface GigabitEthernet0/0
+ ip address 216.0.5.2 255.255.255.0
+ duplex auto
+ speed auto**
+
+**Configured GigabitEthernet0/1 -- unused, administratively shut down
+interface GigabitEthernet0/1
+ no ip address
+ duplex auto
+ speed auto
+ shutdown**
+
+**Configured Serial0/0/0 -- unused, DCE clock rate set but otherwise unconfigured
+interface Serial0/0/0
+ no ip address
+ clock rate 2000000**
+
+**Configured Serial0/0/1 -- unused, DCE clock rate set but otherwise unconfigured
+interface Serial0/0/1
+ no ip address
+ clock rate 2000000**
+
+**Configured GigabitEthernet0/1/0 -- unused, no IP address
+interface GigabitEthernet0/1/0
+ no ip address**
+
+**Configured the VLAN 1 SVI -- no IP address, administratively shut down (unused)
+interface Vlan1
+ no ip address
+ shutdown**
+
+**Enabled OSPF process 1 in area 0 (backbone), advertising the shared internet segment and both loopback addresses
+router ospf 1
+ log-adjacency-changes
+ network 216.0.5.2 0.0.0.0 area 0
+ network 1.1.1.1 0.0.0.0 area 0
+ network 8.8.8.8 0.0.0.0 area 0**
+
+**Enabled classless routing behaviour for undefined subnets
+ip classless**
+
+**Enabled NetFlow export, version 9
+ip flow-export version 9**
+
+**Configured the MOTD login banner (a stricter, warning-style banner distinct from the site routers' banners)
+banner motd #
+===================================
+UNAUTHORIZED ACCESS WOULD BE KILLED
+===================================
+#**
+
+**Set the console line password, requiring login
+line con 0
+ password 7 082F434B05
+ login**
+
+**Auxiliary line -- present but unconfigured
+line aux 0**
+
+**Configured vty 0-4 with a login password -- no access-class restriction and no transport-input restriction is applied here, unlike the site routers
+line vty 0 4
+ password 7 082F434B05
+ login**
+
+================================================================================
+ END OF RUNNING-CONFIGURATION -- ISP-RT
+================================================================================

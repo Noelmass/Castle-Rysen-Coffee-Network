@@ -1,0 +1,153 @@
+================================================================================
+ CASTLE RYSEN COFFEE -- NETWORK CONFIGURATION DOCUMENTATION
+ Device : FALL01-DS02  (Packet Tracer object: Switch7)
+ Model  : Cisco 2960-24TT (IOS 15.0)
+ Site   : Castle Rysen Coffee Fallout Shelter -- Distribution Switch 2 (STP secondary root)
+ Source : Running-configuration (show running-config), extracted directly
+          from CastleRysenProject.pkt. Not the startup-config.
+================================================================================
+
+**Set baseline IOS housekeeping: disabled millisecond timestamps on log/debug messages and enabled secret-key encryption for all clear-text passwords in the config
+version 15.0
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+service password-encryption**
+
+**Set the device hostname to FALL01-DS02
+hostname FALL01-DS02**
+
+**Set the encrypted enable secret (privileged EXEC password)
+enable secret 5 $1$mERr$aEvfWgVMth8X8NrSsL0Il.**
+
+**Disabled DNS domain lookups (prevents the CLI from trying to resolve mistyped commands as hostnames)
+no ip domain-lookup**
+
+**Enabled Rapid PVST+ spanning tree, extended the STP system ID, and set this switch's per-VLAN bridge priority (28672) for VLANs 1/10/20/30/40 -- higher than FALL01-DS01's 24576, so this switch is the secondary/backup root
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+spanning-tree vlan 1,10,20,30,40 priority 28672**
+
+**Created the Port-channel1 logical interface, set it to trunk mode, and restricted it to VLANs 1, 10, 20, 30, and 40 -- this is the EtherChannel bundle to FALL01-DS01
+interface Port-channel1
+ switchport trunk allowed vlan 1,10,20,30,40
+ switchport mode trunk**
+
+**Configured FastEthernet0/1 (downlink to FALL01-AS01 Fa0/2) as a trunk port
+interface FastEthernet0/1
+ switchport mode trunk**
+
+**Configured FastEthernet0/2 (downlink to FALL01-AS02 Fa0/2) as a trunk port
+interface FastEthernet0/2
+ switchport mode trunk**
+
+**Configured FastEthernet0/3 (downlink to FALL01-AS03 Fa0/2) as a trunk port
+interface FastEthernet0/3
+ switchport mode trunk**
+
+**Configured FastEthernet0/4 (downlink to FALL01-AS04 Fa0/2) as a trunk port
+interface FastEthernet0/4
+ switchport mode trunk**
+
+**FastEthernet0/5 left at default switchport settings (not connected)
+interface FastEthernet0/5**
+
+**Configured FastEthernet0/6 as a pre-staged trunk port -- trunk negotiation disabled, full duplex, 100 Mbps fixed, administratively shut down until needed
+interface FastEthernet0/6
+ switchport mode trunk
+ switchport nonegotiate
+ duplex full
+ speed 100
+ shutdown**
+
+**Configured FastEthernet0/7 identically to Fa0/6 -- a second pre-staged, shut-down trunk port
+interface FastEthernet0/7
+ switchport mode trunk
+ switchport nonegotiate
+ duplex full
+ speed 100
+ shutdown**
+
+**FastEthernet0/8 left at default switchport settings (not connected)
+interface FastEthernet0/8**
+
+**Configured FastEthernet0/9, labelled "DS-1 --- DS-2," as a trunk restricted to VLANs 1/10/20/30/40 and bundled via LACP into the Port-channel1 EtherChannel to FALL01-DS01 Fa0/9
+interface FastEthernet0/9
+ description "DS-1 --- DS-2"
+ switchport trunk allowed vlan 1,10,20,30,40
+ switchport mode trunk
+ channel-group 1 mode active**
+
+**Configured FastEthernet0/10 the same way as Fa0/9 -- the second physical member of the Port-channel1 EtherChannel to FALL01-DS01 Fa0/10
+interface FastEthernet0/10
+ description "DS-1 --- DS-2"
+ switchport trunk allowed vlan 1,10,20,30,40
+ switchport mode trunk
+ channel-group 1 mode active**
+
+**FastEthernet0/11-0/24 left at default switchport settings (not connected)
+interface FastEthernet0/11
+!
+interface FastEthernet0/12
+!
+interface FastEthernet0/13
+!
+interface FastEthernet0/14
+!
+interface FastEthernet0/15
+!
+interface FastEthernet0/16
+!
+interface FastEthernet0/17
+!
+interface FastEthernet0/18
+!
+interface FastEthernet0/19
+!
+interface FastEthernet0/20
+!
+interface FastEthernet0/21
+!
+interface FastEthernet0/22
+!
+interface FastEthernet0/23
+!
+interface FastEthernet0/24**
+
+**Configured GigabitEthernet0/1 (uplink to FALL01-RT02 Fa0/1) as a trunk port with trunk negotiation disabled -- carries the router-on-a-stick trunk for the site's four VLANs
+interface GigabitEthernet0/1
+ switchport mode trunk
+ switchport nonegotiate**
+
+**GigabitEthernet0/2 left at its default switchport settings (not connected)
+interface GigabitEthernet0/2**
+
+**Configured the VLAN 1 (default) SVI -- no IP address assigned
+interface Vlan1
+ no ip address**
+
+**Configured the MOTD login banner
+banner motd ^
+===============================
+FALLOUT DISTRIBUTION SWITCH - 2
+===============================
+^**
+
+**Defined standard ACL ADMIN_LIMIT (permits only the ADMIN and management subnets) and set the console line password, requiring login
+ip access-list standard ADMIN_LIMIT
+ permit 10.0.18.0 0.0.0.31
+ permit 10.0.16.0 0.0.0.127
+line con 0
+ password 7 082F434B05
+ login**
+
+**Applied ADMIN_LIMIT to incoming vty sessions and set a login password on vty 0-4; vty 5-15 requires login but has no password configured
+line vty 0 4
+ access-class ADMIN_LIMIT in
+ password 7 082F434B05
+ login
+line vty 5 15
+ login**
+
+================================================================================
+ END OF RUNNING-CONFIGURATION -- FALL01-DS02
+================================================================================

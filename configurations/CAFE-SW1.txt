@@ -1,0 +1,283 @@
+================================================================================
+ CASTLE RYSEN COFFEE -- NETWORK CONFIGURATION DOCUMENTATION
+ Device : Cafe-SW1  (Packet Tracer object: Switch0)
+ Model  : Cisco 2960-24TT (IOS 15.0)
+ Site   : Castle Rysen Coffee Cafe -- Access Switch 1
+ Source : Running-configuration (show running-config), extracted directly
+          from CastleRysenProject.pkt. Not the startup-config.
+================================================================================
+
+NOTES:
+ - DHCP snooping and Dynamic ARP Inspection are configured throughout this switch at the port level (trust, rate-limiting, sticky learning), but the global "ip dhcp snooping" command and the per-VLAN "ip dhcp snooping vlan" / "ip arp inspection vlan" enablement statements are intentionally not present. This is left off deliberately due to a Packet Tracer simulation bug with these features, not an oversight.
+
+--------------------------------------------------------------------------------
+
+**Set baseline IOS housekeeping: disabled millisecond timestamps on log/debug messages and enabled secret-key encryption for all clear-text passwords in the config
+version 15.0
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+service password-encryption**
+
+**Set the device hostname to Cafe-SW1
+hostname Cafe-SW1**
+
+**Set the encrypted enable secret (privileged EXEC password)
+enable secret 5 $1$mERr$aEvfWgVMth8X8NrSsL0Il.**
+
+**Set the device clock to the IST time zone (UTC+5:30)
+clock timezone IST 5 30**
+
+**Enabled Rapid PVST+ spanning tree, made PortFast + BPDU Guard the default on all access ports, extended the STP system ID, and set this switch's per-VLAN bridge priority (24576) for VLANs 1/10/20 so it wins root-bridge election over Cafe-SW2
+spanning-tree mode rapid-pvst
+spanning-tree portfast default
+spanning-tree portfast bpduguard default
+spanning-tree extend system-id
+spanning-tree vlan 1,10,20 priority 24576**
+
+**Created the Port-channel1 logical interface and set it to trunk mode -- this is the LACP EtherChannel bundle to Cafe-SW2
+interface Port-channel1
+ switchport mode trunk**
+
+**Configured FastEthernet0/1 and 0/2 as the two physical members of the LACP EtherChannel (Port-channel1) to Cafe-SW2 (Cafe-SW2 Fa0/1 and Fa0/2) -- both trunk ports, trusted for DHCP snooping and Dynamic ARP Inspection
+interface FastEthernet0/1
+ ip arp inspection trust
+ ip dhcp snooping trust
+ switchport mode trunk
+ channel-protocol lacp
+ channel-group 1 mode active
+!
+interface FastEthernet0/2
+ ip arp inspection trust
+ ip dhcp snooping trust
+ switchport mode trunk
+ channel-protocol lacp
+ channel-group 1 mode active**
+
+**Configured FastEthernet0/3 (connected to Server0) as an access port on VLAN 10 (ADMIN), trusted for Dynamic ARP Inspection, with DHCP snooping rate-limiting and sticky port security that has learned MAC address 00D0.97CD.9357
+interface FastEthernet0/3
+ switchport access vlan 10
+ ip arp inspection trust
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ switchport port-security mac-address sticky 
+ switchport port-security mac-address sticky 00D0.97CD.9357
+ spanning-tree portfast
+ spanning-tree bpduguard enable**
+
+**Configured FastEthernet0/4-0/9 as standard access ports (default VLAN 1) with DHCP snooping rate-limiting, dynamic port security, and PortFast + BPDU Guard
+interface FastEthernet0/4
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/5
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/6
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/7
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/8
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/9
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable**
+
+**Configured FastEthernet0/10 (connected to PC0) as an access port on VLAN 10 (ADMIN), trusted for Dynamic ARP Inspection, with DHCP snooping rate-limiting and sticky port security that has learned MAC address 00D0.9754.3D5B
+interface FastEthernet0/10
+ switchport access vlan 10
+ ip arp inspection trust
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ switchport port-security mac-address sticky 
+ switchport port-security mac-address sticky 00D0.9754.3D5B
+ spanning-tree portfast
+ spanning-tree bpduguard enable**
+
+**Configured FastEthernet0/11-0/24 as unused ports, pre-hardened with DHCP snooping rate-limiting, dynamic port security, and PortFast + BPDU Guard, then administratively shut down until needed
+interface FastEthernet0/11
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ shutdown
+!
+interface FastEthernet0/12
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ shutdown
+!
+interface FastEthernet0/13
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ shutdown
+!
+interface FastEthernet0/14
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ shutdown
+!
+interface FastEthernet0/15
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ shutdown
+!
+interface FastEthernet0/16
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ shutdown
+!
+interface FastEthernet0/17
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ shutdown
+!
+interface FastEthernet0/18
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ shutdown
+!
+interface FastEthernet0/19
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ shutdown
+!
+interface FastEthernet0/20
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ shutdown
+!
+interface FastEthernet0/21
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ shutdown
+!
+interface FastEthernet0/22
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ shutdown
+!
+interface FastEthernet0/23
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ shutdown
+!
+interface FastEthernet0/24
+ ip dhcp snooping limit rate 5
+ switchport mode access
+ switchport port-security
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ shutdown**
+
+**Configured GigabitEthernet0/1 (connected to Light Weight Access Point0) as a trunk port
+interface GigabitEthernet0/1
+ switchport mode trunk**
+
+**GigabitEthernet0/2 left at its default switchport settings (not connected)
+interface GigabitEthernet0/2**
+
+**Configured the VLAN 1 (default) SVI -- no IP address assigned
+interface Vlan1
+ no ip address**
+
+**Configured the VLAN 10 (ADMIN) SVI with IP address 10.0.18.15/27 -- corrected from /26 so it now matches Cafe-SW2 and CAFE-RT01's gateway
+interface Vlan10
+ ip address 10.0.18.15 255.255.255.224**
+
+**Configured the VLAN 100 SVI -- no IP address assigned and no access port on this switch is currently assigned to VLAN 100
+interface Vlan100
+ no ip address**
+
+**Configured the MOTD login banner
+banner motd ^
+================
+CAFE SWITCH - 1
+================
+^**
+
+**Defined standard ACL ADMIN_LIMIT (permits only the ADMIN and management subnets) and set the console line password, requiring login
+ip access-list standard ADMIN_LIMIT
+ permit 10.0.18.0 0.0.0.31
+ permit 10.0.16.0 0.0.0.127
+line con 0
+ password 7 082F434B05
+ login**
+
+**Applied ADMIN_LIMIT to incoming vty sessions and set a login password on vty 0-4; vty 5-15 requires login but has no password configured
+line vty 0 4
+ access-class ADMIN_LIMIT in
+ password 7 082F434B05
+ login
+line vty 5 15
+ login**
+
+**Pointed this switch's NTP client at 10.0.18.1 (CAFE-RT01) as its time source
+ntp server 10.0.18.1**
+
+================================================================================
+ END OF RUNNING-CONFIGURATION -- Cafe-SW1
+================================================================================

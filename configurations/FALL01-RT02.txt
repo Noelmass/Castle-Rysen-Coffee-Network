@@ -1,0 +1,153 @@
+================================================================================
+ CASTLE RYSEN COFFEE -- NETWORK CONFIGURATION DOCUMENTATION
+ Device : FALL01-RT02  (Packet Tracer object: Router2)
+ Model  : Cisco 2811 (IOS 15.1)
+ Site   : Castle Rysen Coffee Fallout Shelter -- Site Router 2 (HSRP standby)
+ Source : Running-configuration (show running-config), extracted directly
+          from CastleRysenProject.pkt. Not the startup-config.
+================================================================================
+
+**Set baseline IOS housekeeping: disabled millisecond timestamps on log/debug messages and enabled secret-key encryption for all clear-text passwords in the config
+version 15.1
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+service password-encryption**
+
+**Set the device hostname to FALL01-RT02
+hostname FALL01-RT02**
+
+**Set the encrypted enable secret (privileged EXEC password)
+enable secret 5 $1$mERr$aEvfWgVMth8X8NrSsL0Il.**
+
+**Set the device clock to the IST time zone (UTC+5:30)
+clock timezone IST 5 30**
+
+**Enabled Cisco Express Forwarding and IPv6 unicast routing
+ip cef
+ipv6 unicast-routing**
+
+**Explicitly disabled CEF for IPv6 (IPv4 CEF remains on)
+no ipv6 cef**
+
+**Hardware license/UDI declaration for this router (informational, auto-generated). Unlike FALL01-RT01, this device has no local username account and no explicit "ip ssh version 2" line
+license udi pid CISCO2811/K9 sn FTX1017OJ8I-**
+
+**Set the DNS domain name to castlerysen.local, added a static host-table entry for cafe1.castlerysen.local, and pointed DNS resolution at 1.1.1.1
+ip domain-name castlerysen.local
+ip host cafe1.castlerysen.local 172.16.0.2 
+ip name-server 1.1.1.1**
+
+**Spanning-tree mode set to PVST (present by default on IOS)
+spanning-tree mode pvst**
+
+**Configured FastEthernet0/0 with IP address 216.0.5.3/24 (NAT-outside) -- the link to RTINT-SW Fa0/3, toward the simulated internet
+interface FastEthernet0/0
+ ip address 216.0.5.3 255.255.255.0
+ ip nat outside
+ duplex auto
+ speed auto**
+
+**Configured FastEthernet0/1 as the parent physical interface for the four 802.1Q subinterfaces below -- the trunk to FALL01-DS02 GigabitEthernet0/1
+interface FastEthernet0/1
+ no ip address
+ duplex auto
+ speed auto**
+
+**Configured subinterface Fa0/1.10, tagged for VLAN 10 (Management) -- NAT-inside, dual-stacked with an EUI-64 IPv6 address, and running HSRPv2 group 10 as the standby router (default priority) with virtual gateway 10.0.16.1 shared with FALL01-RT01. Preempt is now correctly scoped to group 10 ("standby 10 preempt"); the old ungrouped "standby preempt" line is still present too, harmlessly, since it never applied to a real group
+interface FastEthernet0/1.10
+ encapsulation dot1Q 10
+ ip address 10.0.16.3 255.255.255.128
+ ip nat inside
+ ipv6 address 2001:DB8:1:4::/64 eui-64
+ standby version 2
+ standby 10 ip 10.0.16.1
+ standby 10 preempt
+ standby preempt**
+
+**Configured subinterface Fa0/1.20, tagged for VLAN 20 (Internal) -- NAT-inside, dual-stacked with an EUI-64 IPv6 address, and running HSRPv2 group 20 as the standby router, sharing virtual gateway 10.0.16.129 with FALL01-RT01. Preempt is now correctly scoped to group 20; the old ungrouped "standby preempt" line is still present too, harmlessly
+interface FastEthernet0/1.20
+ encapsulation dot1Q 20
+ ip address 10.0.16.131 255.255.255.128
+ ip nat inside
+ ipv6 address 2001:DB8:1:5::/64 eui-64
+ standby version 2
+ standby 20 ip 10.0.16.129
+ standby 20 preempt
+ standby preempt**
+
+**Configured subinterface Fa0/1.30, tagged for VLAN 30 (Video) -- NAT-inside, dual-stacked with an EUI-64 IPv6 address, and running HSRPv2 group 30 as the standby router, sharing virtual gateway 10.0.17.1 with FALL01-RT01. Preempt is now correctly scoped to group 30; the old ungrouped "standby preempt" line is still present too, harmlessly
+interface FastEthernet0/1.30
+ encapsulation dot1Q 30
+ ip address 10.0.17.3 255.255.255.128
+ ip nat inside
+ ipv6 address 2001:DB8:1:6::/64 eui-64
+ standby version 2
+ standby 30 ip 10.0.17.1
+ standby 30 preempt
+ standby preempt**
+
+**Configured subinterface Fa0/1.40, tagged for VLAN 40 (Guest) -- NAT-inside, dual-stacked with an EUI-64 IPv6 address, and running HSRPv2 group 40 as the standby router, sharing virtual gateway 10.0.17.129 with FALL01-RT01. Preempt is now correctly scoped to group 40; the old ungrouped "standby preempt" line is still present too, harmlessly
+interface FastEthernet0/1.40
+ encapsulation dot1Q 40
+ ip address 10.0.17.131 255.255.255.128
+ ip nat inside
+ ipv6 address 2001:DB8:1:7::/64 eui-64
+ standby version 2
+ standby 40 ip 10.0.17.129
+ standby 40 preempt
+ standby preempt**
+
+**Configured the VLAN 1 SVI -- no IP address, administratively shut down (unused)
+interface Vlan1
+ no ip address
+ shutdown**
+
+**Enabled OSPF process 1 in area 0 only (this router is not an ABR, unlike FALL01-RT01), advertising the local site VLANs and the internet-facing interface, and originating a default route into OSPF
+router ospf 1
+ log-adjacency-changes
+ network 10.0.16.0 0.0.1.255 area 0
+ network 216.0.5.3 0.0.0.0 area 0
+ default-information originate**
+
+**Configured PAT/overload NAT translating access-list 1 traffic out FastEthernet0/0, and a static default route toward 216.0.5.2 (ISP-RT)
+ip nat inside source list 1 interface FastEthernet0/0 overload
+ip classless
+ip route 0.0.0.0 0.0.0.0 216.0.5.2 **
+
+**Enabled NetFlow export, version 9
+ip flow-export version 9**
+
+**Defined access-list 1 (matches the Fallout Shelter site's own subnets plus the Cafe site's ADMIN/PATRON range) and standard ACL ADMIN_LIMIT (permits only the ADMIN and management subnets, used to restrict remote management access)
+access-list 1 permit 10.0.16.0 0.0.1.255
+access-list 1 permit 10.0.18.0 0.0.0.63
+ip access-list standard ADMIN_LIMIT
+ permit 10.0.18.0 0.0.0.31
+ permit 10.0.16.0 0.0.0.127**
+
+**Configured the MOTD login banner
+banner motd ^
+==================
+FALLOUT ROUTER - 2
+==================
+^**
+
+**Set the console line password, requiring login
+line con 0
+ password 7 082F434B05
+ login**
+
+**Auxiliary line -- present but unconfigured
+line aux 0**
+
+**Configured vty 0-4: ADMIN_LIMIT applied to restrict source addresses, with a login password. Unlike FALL01-RT01, this line uses plain password login rather than login local, and transport-input is not restricted to SSH
+line vty 0 4
+ access-class ADMIN_LIMIT in
+ password 7 082F434B05
+ login**
+
+**Configured this router as an NTP master at stratum 1
+ntp master 1**
+
+================================================================================
+ END OF RUNNING-CONFIGURATION -- FALL01-RT02
+================================================================================

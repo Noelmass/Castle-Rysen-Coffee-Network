@@ -1,0 +1,119 @@
+================================================================================
+ CASTLE RYSEN COFFEE -- NETWORK CONFIGURATION DOCUMENTATION
+ Device : RTINT-SW  (Packet Tracer object: Switch8)
+ Model  : Cisco 2960-24TT (IOS 15.0)
+ Site   : Simulated Internet -- L2 interconnect between ISP-RT and both site routers
+ Source : Running-configuration (show running-config), extracted directly
+          from CastleRysenProject.pkt. Not the startup-config.
+================================================================================
+
+NOTES:
+ - Since the previous documentation pass, password encryption, the enable secret, the MOTD banner, and a password on the console line and on vty 0-4 have all been added to this device. One gap remains: vty 5-15 still requires login but has no password configured, so remote access there would still be refused as written.
+
+--------------------------------------------------------------------------------
+
+**Set baseline IOS housekeeping: disabled millisecond timestamps on log/debug messages; password encryption is now enabled on this device (previously it was explicitly turned off)
+version 15.0
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+service password-encryption**
+
+**Set the device hostname to RTINT-SW
+hostname RTINT-SW**
+
+**Set the encrypted enable secret (privileged EXEC password) -- previously this device had none at all
+enable secret 5 $1$mERr$aEvfWgVMth8X8NrSsL0Il.**
+
+**Enabled PVST spanning tree and extended the STP system ID
+spanning-tree mode pvst
+spanning-tree extend system-id**
+
+**Configured FastEthernet0/1 (connected to FALL01-RT01 Fa0/0) -- left at default switchport settings
+interface FastEthernet0/1**
+
+**Configured FastEthernet0/2 (connected to ISP-RT Gi0/0) -- left at default switchport settings
+interface FastEthernet0/2**
+
+**Configured FastEthernet0/3 (connected to FALL01-RT02 Fa0/0) -- left at default switchport settings
+interface FastEthernet0/3**
+
+**FastEthernet0/4-0/24 left at default switchport settings (not connected)
+interface FastEthernet0/4
+!
+interface FastEthernet0/5
+!
+interface FastEthernet0/6
+!
+interface FastEthernet0/7
+!
+interface FastEthernet0/8
+!
+interface FastEthernet0/9
+!
+interface FastEthernet0/10
+!
+interface FastEthernet0/11
+!
+interface FastEthernet0/12
+!
+interface FastEthernet0/13
+!
+interface FastEthernet0/14
+!
+interface FastEthernet0/15
+!
+interface FastEthernet0/16
+!
+interface FastEthernet0/17
+!
+interface FastEthernet0/18
+!
+interface FastEthernet0/19
+!
+interface FastEthernet0/20
+!
+interface FastEthernet0/21
+!
+interface FastEthernet0/22
+!
+interface FastEthernet0/23
+!
+interface FastEthernet0/24**
+
+**GigabitEthernet0/1 left at its default switchport settings (not connected)
+interface GigabitEthernet0/1**
+
+**GigabitEthernet0/2 left at its default switchport settings (not connected)
+interface GigabitEthernet0/2**
+
+**Configured the VLAN 1 SVI -- no IP address, administratively shut down
+interface Vlan1
+ no ip address
+ shutdown**
+
+**Configured the MOTD login banner -- previously this device had none at all
+banner motd #
+==================================
+UNAUTHORIZED ACCESS WILL BE KILLED
+==================================
+
+#**
+
+**Defined standard ACL ADMIN_LIMIT (permits only the ADMIN and management subnets) and set a password on the console line (line con 0) -- previously this line had no password configured
+ip access-list standard ADMIN_LIMIT
+ permit 10.0.18.0 0.0.0.31
+ permit 10.0.16.0 0.0.0.127
+line con 0
+ password 7 082F434B05**
+
+**Applied ADMIN_LIMIT to incoming vty sessions and set a login password on vty 0-4 -- previously this line had none. vty 5-15 still requires login but still has no password configured, so remote access there would still be refused as written
+line vty 0 4
+ access-class ADMIN_LIMIT in
+ password 7 082F434B05
+ login
+line vty 5 15
+ login**
+
+================================================================================
+ END OF RUNNING-CONFIGURATION -- RTINT-SW
+================================================================================

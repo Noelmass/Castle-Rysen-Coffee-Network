@@ -1,0 +1,185 @@
+================================================================================
+ CASTLE RYSEN COFFEE -- NETWORK CONFIGURATION DOCUMENTATION
+ Device : FALL01-AS04  (Packet Tracer object: Switch5)
+ Model  : Cisco 2960-24TT (IOS 15.0)
+ Site   : Castle Rysen Coffee Fallout Shelter -- Access Switch 4 (VLAN 40 / Guest)
+ Source : Running-configuration (show running-config), extracted directly
+          from CastleRysenProject.pkt. Not the startup-config.
+================================================================================
+
+**Set baseline IOS housekeeping: disabled millisecond timestamps on log/debug messages and enabled secret-key encryption for all clear-text passwords in the config
+version 15.0
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+service password-encryption**
+
+**Set the device hostname to FALL01-AS04
+hostname FALL01-AS04**
+
+**Set the encrypted enable secret (privileged EXEC password)
+enable secret 5 $1$mERr$aEvfWgVMth8X8NrSsL0Il.**
+
+**Disabled DNS domain lookups (prevents the CLI from trying to resolve mistyped commands as hostnames)
+no ip domain-lookup**
+
+**Enabled Rapid PVST+ spanning tree and extended the STP system ID
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id**
+
+**Configured FastEthernet0/1 (uplink to FALL01-DS01 Fa0/4) as a trunk port
+interface FastEthernet0/1
+ switchport mode trunk**
+
+**Configured FastEthernet0/2 (uplink to FALL01-DS02 Fa0/4) as a trunk port -- together with Fa0/1 this gives the switch a redundant, STP-blocked path to both distribution switches
+interface FastEthernet0/2
+ switchport mode trunk**
+
+**Configured FastEthernet0/3 (connected to PC5) as an access port on VLAN 40 (Guest), with PortFast and BPDU Guard enabled
+interface FastEthernet0/3
+ switchport access vlan 40
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable**
+
+**Configured FastEthernet0/4-0/24 as access ports with PortFast and BPDU Guard enabled, left up and available (no VLAN explicitly assigned, so they stay on the default VLAN 1)
+interface FastEthernet0/4
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/5
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/6
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/7
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/8
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/9
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/10
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/11
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/12
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/13
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/14
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/15
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/16
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/17
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/18
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/19
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/20
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/21
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/22
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/23
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/24
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable**
+
+**GigabitEthernet0/1 left at its default switchport settings (not connected)
+interface GigabitEthernet0/1**
+
+**GigabitEthernet0/2 left at its default switchport settings (not connected)
+interface GigabitEthernet0/2**
+
+**Configured the VLAN 1 (default) SVI -- no IP address assigned
+interface Vlan1
+ no ip address**
+
+**Configured the MOTD login banner
+banner motd ^
+=========================
+FALLOUT ACCESS SWITCH - 4 
+=========================
+^**
+
+**Defined standard ACL ADMIN_LIMIT (permits only the ADMIN and management subnets) and set the console line password, requiring login
+ip access-list standard ADMIN_LIMIT
+ permit 10.0.18.0 0.0.0.31
+ permit 10.0.16.0 0.0.0.127
+line con 0
+ password 7 082F434B05
+ login**
+
+**Applied ADMIN_LIMIT to incoming vty sessions and set a login password on vty 0-4; vty 5-15 requires login but has no password configured
+line vty 0 4
+ access-class ADMIN_LIMIT in
+ password 7 082F434B05
+ login
+line vty 5 15
+ login**
+
+================================================================================
+ END OF RUNNING-CONFIGURATION -- FALL01-AS04
+================================================================================

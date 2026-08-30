@@ -1,0 +1,172 @@
+================================================================================
+ CASTLE RYSEN COFFEE -- NETWORK CONFIGURATION DOCUMENTATION
+ Device : CAFE-RT01  (Packet Tracer object: Router0)
+ Model  : Cisco 1941 (IOS 15.1)
+ Site   : Castle Rysen Coffee Cafe -- Site Router
+ Source : Running-configuration (show running-config), extracted directly
+          from CastleRysenProject.pkt. Not the startup-config.
+================================================================================
+
+**Set baseline IOS housekeeping: disabled millisecond timestamps on log/debug messages and enabled secret-key encryption for all clear-text passwords in the config
+version 15.1
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+service password-encryption**
+
+**Set the device hostname to CAFE-RT01
+hostname CAFE-RT01**
+
+**Set the encrypted enable secret (privileged EXEC password)
+enable secret 5 $1$mERr$aEvfWgVMth8X8NrSsL0Il.**
+
+**Excluded the two gateway addresses (10.0.18.1 and 10.0.18.33) from the DHCP pools below so they are never handed out to clients
+ip dhcp excluded-address 10.0.18.1
+ip dhcp excluded-address 10.0.18.33**
+
+**Created DHCP pools ADMIN-10 and PATRON-20 for the Cafe site's two VLANs, and set the device clock to the IST time zone (UTC+5:30)
+ip dhcp pool ADMIN-10
+ network 10.0.18.0 255.255.255.224
+ default-router 10.0.18.1
+ dns-server 1.1.1.1
+ip dhcp pool PATRON-20
+ network 10.0.18.32 255.255.255.224
+ default-router 10.0.18.33
+ dns-server 1.1.1.1
+clock timezone IST 5 30**
+
+**Enabled Cisco Express Forwarding and IPv6 unicast routing
+ip cef
+ipv6 unicast-routing**
+
+**Explicitly disabled CEF for IPv6 (IPv4 CEF remains on)
+no ipv6 cef**
+
+**Created a local user account (noel) with an encrypted secret, for SSH login-local authentication
+username noel secret 5 $1$mERr$aEvfWgVMth8X8NrSsL0Il.**
+
+**Hardware license/UDI declaration for this router (informational, auto-generated)
+license udi pid CISCO1941/K9 sn FTX1524D1WP-**
+
+**Enabled SSH version 2, set the DNS domain name to castlerysen.local, added static host-table entries for cafe1 and plex.castlerysen.local, and pointed DNS resolution at 8.8.8.8
+ip ssh version 2
+ip domain-name castlerysen.local
+ip host cafe1 172.16.0.1 
+ip host plex.castlerysen.local 10.0.18.3 
+ip name-server 8.8.8.8**
+
+**Spanning-tree mode set to PVST (present by default on IOS even though this device is a router)
+spanning-tree mode pvst**
+
+**Configured Loopback100 -- no IP address, administratively shut down (unused)
+interface Loopback100
+ no ip address
+ shutdown**
+
+**Configured GigabitEthernet0/0 -- no IP address, administratively shut down (unused). No longer carries any NAT role.
+interface GigabitEthernet0/0
+ no ip address
+ duplex auto
+ speed auto
+ shutdown**
+
+**Configured GigabitEthernet0/1 as the parent physical interface for the two 802.1Q subinterfaces below (the trunk to Cafe-SW2 Gi0/1). No longer carries any NAT role.
+interface GigabitEthernet0/1
+ no ip address
+ duplex auto
+ speed auto**
+
+**Configured subinterface Gi0/1.10, tagged for VLAN 10 (ADMIN) -- this is the default-gateway address for the ADMIN-10 DHCP pool, dual-stacked with IPv4 and IPv6
+interface GigabitEthernet0/1.10
+ encapsulation dot1Q 10
+ ip address 10.0.18.1 255.255.255.224
+ ipv6 address 2001:DB8:1:1::1/64**
+
+**Configured subinterface Gi0/1.20, tagged for VLAN 20 (PATRON) -- this is the default-gateway address for the PATRON-20 DHCP pool, dual-stacked with IPv4 and IPv6, with the CAFE_FILTER access list applied inbound
+interface GigabitEthernet0/1.20
+ encapsulation dot1Q 20
+ ip address 10.0.18.33 255.255.255.224
+ ip access-group CAFE_FILTER in
+ ipv6 address 2001:DB8:1:2::1/64**
+
+**Configured Serial0/0/0 as the WAN link to the Fallout Shelter site (FALL01-RT01 Serial0/3/0), IPv4 172.16.0.2/30, dual-stacked with IPv6, DCE clock rate set
+interface Serial0/0/0
+ ip address 172.16.0.2 255.255.255.252
+ ipv6 address 2001:DB8:1:3::1/64
+ clock rate 2000000**
+
+**Configured Serial0/0/1 -- unused, DCE clock rate set but otherwise unconfigured
+interface Serial0/0/1
+ no ip address
+ clock rate 2000000**
+
+**Configured GigabitEthernet0/1/0 -- no IP address, not otherwise configured. This was previously the designated NAT-outside interface; that role has been removed.
+interface GigabitEthernet0/1/0
+ no ip address**
+
+**Configured the VLAN 1 SVI -- no IP address, administratively shut down (unused)
+interface Vlan1
+ no ip address
+ shutdown**
+
+**Enabled OSPF process 1 in area 1: the ADMIN-VLAN interface is passive (no OSPF neighbors expected there) while the WAN link toward the Fallout Shelter site is an active OSPF interface. The PATRON VLAN (Gi0/1.20) is deliberately left out of OSPF entirely -- per the RFP, PATRON traffic is not to be advertised to the Fallout Shelter site.
+router ospf 1
+ log-adjacency-changes
+ passive-interface GigabitEthernet0/1.10
+ network 10.0.18.1 0.0.0.0 area 1
+ network 172.16.0.2 0.0.0.0 area 1**
+
+**Configured a static default route toward 216.0.5.2 (ISP-RT). NAT has been removed from this router entirely -- there is no longer a NAT pool, overload rule, or inside/outside interface marking anywhere in this config.
+ip classless
+ip route 0.0.0.0 0.0.0.0 216.0.5.2 **
+
+**Enabled NetFlow export, version 9
+ip flow-export version 9**
+
+**Static IPv6 routes toward the Fallout Shelter site's four internal VLANs, next-hop across the Serial0/0/0 WAN link
+ipv6 route 2001:DB8:1:4::/64 2001:DB8:1:3::2
+ipv6 route 2001:DB8:1:5::/64 2001:DB8:1:3::2
+ipv6 route 2001:DB8:1:6::/64 2001:DB8:1:3::2
+ipv6 route 2001:DB8:1:7::/64 2001:DB8:1:3::2**
+
+**Defined extended ACL CAFE_FILTER (governs PATRON-to-ADMIN VLAN traffic: allows HTTPS, Plex, and the mDNS/SSDP discovery ports needed to reach the Plex server on the ADMIN VLAN, denies all other PATRON-to-ADMIN traffic, permits everything else) and standard ACL ADMIN_LIMIT (permits only the ADMIN and management subnets, used to restrict remote management access)
+ip access-list extended CAFE_FILTER
+ permit tcp 10.0.18.32 0.0.0.31 10.0.18.0 0.0.0.31 eq 443
+ permit tcp 10.0.18.32 0.0.0.31 10.0.18.0 0.0.0.31 eq 32400
+ permit tcp 10.0.18.32 0.0.0.31 10.0.18.0 0.0.0.31 eq 32469
+ permit udp 10.0.18.32 0.0.0.31 10.0.18.0 0.0.0.31 eq 1900
+ permit udp 10.0.18.32 0.0.0.31 10.0.18.0 0.0.0.31 eq 5353
+ deny ip 10.0.18.32 0.0.0.31 10.0.18.0 0.0.0.31
+ permit ip any any
+ip access-list standard ADMIN_LIMIT
+ permit 10.0.18.0 0.0.0.31
+ permit 10.0.16.0 0.0.0.127**
+
+**Configured the MOTD login banner
+banner motd #
+================
+CAFE ROUTER - 1
+================
+#**
+
+**Set the console line password, requiring login
+line con 0
+ password 7 082F434B05
+ login**
+
+**Auxiliary line -- present but unconfigured
+line aux 0**
+
+**Configured vty 0-4: ADMIN_LIMIT applied to restrict source addresses, local username/secret authentication, and SSH-only remote access (Telnet not permitted)
+line vty 0 4
+ access-class ADMIN_LIMIT in
+ password 7 082F434B05
+ login local
+ transport input ssh**
+
+**Pointed this router's NTP client at 172.16.0.1 (FALL01-RT01) as its time source, while also acting as an NTP master (time source) for the Cafe site's own switches
+ntp server 172.16.0.1
+ntp master**
+
+================================================================================
+ END OF RUNNING-CONFIGURATION -- CAFE-RT01
+================================================================================
