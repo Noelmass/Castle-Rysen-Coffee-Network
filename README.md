@@ -1,4 +1,4 @@
-# Castle Rysen Network Security Architecture
+# Castle Rysen Network Architecture
 
 A beginner-level Cisco networking and network security project built in Cisco Packet Tracer as part of a CCNA-focused learning project.
 
